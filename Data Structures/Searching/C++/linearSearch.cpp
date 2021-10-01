@@ -1,6 +1,5 @@
 // C++ code to linearly search x in arr[]. If x
-// is present then return its location, otherwise
-// return -1
+// is present then return its location
  
 #include <iostream>
 using namespace std;
