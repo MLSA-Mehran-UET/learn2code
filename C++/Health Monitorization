@@ -1,0 +1,176 @@
+//A piece of Code for retrieving Health-related data from Physical wearable sensors connected to the body
+//this code is capable of reading Heart rate, body temperature, body movement  
+// List of sensors used
+//MAX301XX
+//MPU9250/MPU6250
+#include "MPU9250.h"
+#include "heartRate.h"
+#include "MAX30105.h"
+#include <Wire.h>
+//mpu and max30102 objects initialized at addreess of 0x69 and 0x57
+MPU9250 IMU(Wire, 0x69);
+MAX30105 particleSensor;
+int status; // shows the status for IMU
+
+// Declaring Variables for MAX30102
+const byte RATE_SIZE = 4; //Increase this for more averaging. 4 is good.
+byte rates[RATE_SIZE]; //Array of heart rates
+byte rateSpot = 0;
+long lastBeat = 0; //Time at which the last beat occurred
+float beatsPerMinute;
+int beatAvg;
+
+//Declaring Variables for MPU9250 IMU
+// accelometer
+float Accel_X_axis;
+float Accel_Y_axis;
+float Accel_Z_axis;
+// gyroscope
+float Gyro_X_axis;
+float Gyro_Y_axis;
+float Gyro_Z_axis;
+//megnatometer
+float Mag_X_axis;
+float Mag_Y_axis;
+float Mag_Z_axis;
+//Temp IMU
+float Temp_IMU;
+// calculating ir value
+long irValue;
+//values for max30102
+float tempC;
+float tempF;
+void setup() {
+  // initializing serial to display data
+  Serial.begin(115200);
+  while (!Serial) {}
+
+  // start communication with IMU
+  status = IMU.begin();
+  if (status < 0) {
+    Serial.println("IMU initialization unsuccessful");
+    Serial.println("Check IMU wiring or try cycling power");
+    Serial.print("Status: ");
+    Serial.println(status);
+    while (1) {}
+  }
+  // start communicating with MAX 30102
+  if (!particleSensor.begin(Wire, I2C_SPEED_FAST)) //Use default I2C port, 400kHz speed
+  {
+    Serial.println("MAX30105 was not found. Please check wiring/power. ");
+    while (1);
+  }
+ 
+  particleSensor.setup(); //Configure sensor with default settings
+  particleSensor.setPulseAmplitudeRed(0x0A); //Turn Red LED to low to indicate sensor is running
+  particleSensor.setPulseAmplitudeGreen(0); //Turn off Green LED
+}
+
+
+
+void loop() {
+  // read the sensor
+  IMU.readSensor();
+
+  // calculating values for max 30102
+  irValue = particleSensor.getIR();
+  if (irValue > 7000 && checkForBeat(irValue) == true)   //If a heart beat is detected and fingure is placed
+  {
+    //We sensed a beat!
+    long delta = millis() - lastBeat;
+    lastBeat = millis();
+    beatsPerMinute = 60 / (delta / 1000.0);
+
+      if (beatsPerMinute < 255 && beatsPerMinute > 20)
+      {
+      rates[rateSpot++] = (byte)beatsPerMinute; //Store this reading in the array
+      rateSpot %= RATE_SIZE; //Wrap variable
+
+      //Take average of readings
+      beatAvg = 0;
+      for (byte x = 0 ; x < RATE_SIZE ; x++)
+        beatAvg += rates[x];
+      beatAvg /= RATE_SIZE;
+      }
+    tempF = particleSensor.readTemperatureF();
+    tempC = particleSensor.readTemperature();
+  }
+  else {
+    Serial.print("no fingure detected");
+    }
+  
+  if (irValue < 5000) {      //If no finger is detected it inform the user and put the average BPM to 0 or it will be stored for the next measure
+    beatAvg = 0;
+    Serial.println(" Please Place ");
+    Serial.println("your finger ");
+  }
+
+  // display the data of accelometer
+  Accel_X_axis = IMU.getAccelX_mss();
+  Accel_Y_axis = IMU.getAccelY_mss();
+  Accel_Z_axis = IMU.getAccelZ_mss();
+
+  //dispalying data for gyroscope
+  Gyro_X_axis = IMU.getGyroX_rads();
+  Gyro_Y_axis = IMU.getGyroY_rads();
+  Gyro_Z_axis = IMU.getGyroZ_rads();
+
+  // displaying data for magnetometer
+  Mag_X_axis = IMU.getMagX_uT();
+  Mag_Y_axis = IMU.getMagY_uT();
+  Mag_Z_axis = IMU.getMagZ_uT();
+
+  //displaying deta for temp
+  Temp_IMU = IMU.getTemperature_C();
+
+  //printing data
+  Serial.print("Accel_X_axis: ");
+  Serial.print(Accel_X_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Accel_Y_axis: ");
+  Serial.print(Accel_Y_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Accel_Z_axis: ");
+  Serial.print(Accel_Z_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Gyro_X_axis: ");
+  Serial.print(Gyro_X_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Gyro_Y_axis: ");
+  Serial.print(Gyro_Y_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Gyro_Z_axis: ");
+  Serial.print(Gyro_Z_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Mag_X_axis: ");
+  Serial.print(Mag_X_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Mag_Y_axis: ");
+  Serial.print(Mag_Y_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("Mag_Z_axis: ");
+  Serial.print(Mag_Z_axis, 6);
+  Serial.print("\t");
+
+  Serial.print("IMU temp ");
+  Serial.print(Temp_IMU, 2);
+  Serial.println("");
+  
+// printing max 30102 data 
+  Serial.print("BPM: ");
+  Serial.print(beatAvg);
+  Serial.print(" ");
+  Serial.print("Temp F: ");
+  Serial.print(tempF);
+  Serial.print("Temp C: ");
+  Serial.print(tempC);
+  Serial.println("");
+}
