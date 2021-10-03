@@ -57,4 +57,4 @@ with open('udemy.csv', 'w') as file:
         for i in range(len(ids)):
             courses_list[i][-1] = prices[ids[i]]['price']['price_string']
 
-        write.writerows(courses_list)                                                                    #wrinting rows of the data obtained to the csv file generated in the start of the file
+        write.writerows(courses_list)                                                                    #writing rows of the data obtained to the csv file generated in the start of the file
