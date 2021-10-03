@@ -1,4 +1,5 @@
-# Documentation Link :- https://dev.mysql.com/downloads/connector/python/
+# Download Link :- https://dev.mysql.com/downloads/connector/python/
+# Documentation Link :- https://pypi.org/project/mysql-connector-python/
 
 
 
