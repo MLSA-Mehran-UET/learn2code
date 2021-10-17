@@ -1,0 +1,9 @@
+A Recursive task is a task that is defined in the terms of itself. Recursive function calls itself. 
+With each invocation, the problem is reduced to a smaller task (reducing case) until the task arrives at some terminal case. A recursive function has two parts:
+1.	Terminal/base case. a stopping conditions.
+2.	Reducing case/recursive step an expression of the computation or definition in terms of itself.
+Syntax:
+if (terminal_condition)
+     terminal_case
+else
+     reducing_case
