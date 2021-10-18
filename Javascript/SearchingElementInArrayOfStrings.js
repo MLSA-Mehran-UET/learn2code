@@ -11,8 +11,10 @@ if (str.includes(val)) {
     console.log('Element not found!!!');
 }
 
-// for (let j=0; j<str.length; j++) {
-//     if (str[j].match(val)) {
-//         console.log(val)
-//     }
-// }
+// Input : Jav
+// Output : false
+//          Element not found!!!
+
+// Input : Java
+// Output : true
+//          Java
