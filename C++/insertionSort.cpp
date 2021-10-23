@@ -62,3 +62,21 @@ int main()
     // Display the Final Array
     displayArr(a, n);
 }
+
+/*
+    Insertion Sort Algorithm in C++
+    Input: Length of Array followed by Array of integers
+    Output: Sorted array in ascending order
+    
+    Sample Input 1:
+        5
+        65 23 123 5 212
+    Output 1:
+        Sorted Array: 5 23 65 123 212 
+    
+    Sample Input 2:
+        7
+        32 54 112 43 23 1 2
+    Output 2:
+        Sorted Array: 1 2 23 32 43 54 112
+*/
