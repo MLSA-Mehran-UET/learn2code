@@ -14,3 +14,6 @@ function findFactorial(num){
 }
 
 console.log(findFactorial(6));
+
+//OUTPUT
+//720
