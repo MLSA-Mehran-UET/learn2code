@@ -1,0 +1,27 @@
+Consider the following three C++ programmes. The first programme is fairly basic, consisting of a function called 'dice' that adds the face values of two dice. The 'dice' function was then called into the main function. The result is saved in an array in the second programme. We then used that array in the third programme to count each possible total of the two dices (2 to 12).
+
+In C++, create a function 'dice' that simulates the throwing of two dice and returns the sum of their face values as an int.
+
+Create a C++ function called 'getResult' that saves the result of the function 'dice' as an array.
+
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+int dice();
+int main()
+{
+srand(time(0));
+for (int i =0; i<10; i++)
+{
+int number = dice();
+cout << number << endl;
+}
+}
+int dice()
+{
+int dice1 = (int)(1+(rand()%6));
+int dice2 = (int)(1+(rand()%6));
+int diceSum = dice1 + dice2;
+return diceSum;
+}
