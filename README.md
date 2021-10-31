@@ -6,6 +6,8 @@ It is an intiiative undertaken by Student Ambassadors Club, Jamshoro for student
 1. You can contribute in terms of Code
 2. You can contribute in terms of improving Documentation
 ## Following the procedure you can make your contribution with ease.
+### Step 0
+Star and Fork this repository
 ### Step 1
 Look in the issues if the change you are doing is available and issues section is it assigned to someone or not if you can't find any issue open one. Anyone from our team will assign you the issue then you can start contributing
 ### step 2 Fork this repository

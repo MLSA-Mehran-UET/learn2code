@@ -1,0 +1,12 @@
+# Problem Statement For suppose if i want to classify between Apple and oranges so could i ?
+# i need to define or i need to clasify that weather its bumpy or soft ?
+# so i will be using Supervised Learning where things are predictable 
+
+from sklearn import tree                # here i have just imported  a decision tree library from its parent package Sklearn also known as scikit learn 
+features = [[140, 1], [130, 1], [150, 0], [170, 0] ]   # here we are inputing 2 features both we compare in integer for making code easy 140,130,150,170 its siply weight of fruit and 0 or 1 shows weather its bumpy or soft 
+                                                      # or in simple we can say that its Training Data 
+labels  = [0, 0, 1, 1]                # here are the labels for the above classsifier 
+clf = tree.DecisionTreeClassifier()   # at this step i am invoking a pre trained classifier that is decision tree classifier 
+clf = clf.fit(features, labels)       # here i am fiting data that our classsifier provided according to our Labels and features 
+print clf.pridict ( [[150, 0]])       # here we input data that tou our model that tell me this is orange or apple  answer will be a bool value as we have dectared 0 or 1 
+                                      # if it hits 1 so yes it's heavy and bumpy thats what our classifier pridicts 
