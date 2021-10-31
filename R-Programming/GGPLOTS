@@ -1,0 +1,21 @@
+install.packages("ggplot2")
+library(ggplot2)
+help("ggplot")
+x <- iris
+#ggplot(data=x,aes(x=x$Species, y=x$sepal.length, fill=x$Species))+
+ # geom_boxplot()
+
+
+ggplot(data = x, aes(x=x$Species, y=x$Sepal.Length, fill=x$Species))+ 
+  geom_boxplot()+
+  labs(title = "Bar plot of iris", x="Species", y="Sepal length(cm)"
+       ,fill="Species")
+
+#barplot
+ggplot(data = x, aes(x=x$Species, y=x$Sepal.Length, fill=x$Species))+ 
+  geom_bar(position="dodge", stat="identity")+
+  facet_wrap(~x$Species)+
+   labs(title = "Bar plot of iris", x="Species", y="Sepal length(cm)"
+   ,fill="Species")
+help("ggplot")
+  
