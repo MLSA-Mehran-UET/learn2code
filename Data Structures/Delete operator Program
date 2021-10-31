@@ -1,0 +1,30 @@
+Memory allocated dynamically is only needed during specific periods of time within a program; once it is no longer needed, it can be freed so that the memory becomes available again for other requests of dynamic memory. 
+This is the purpose of operator delete. The following is the sample program:
+
+include <iostream>
+#include <new>
+using namespace std;
+
+int main ()
+{
+  int i,n;
+  int * p;
+  cout << "How many numbers would you like to type? ";
+  cin >> i;
+  p= new int[i];
+  if (p == nullptr)
+    cout << "Error: memory could not be allocated";
+  else
+  {
+    for (n=0; n<i; n++)
+    {
+      cout << "Enter number: ";
+      cin >> p[n];
+    }
+    cout << "You have entered: ";
+    for (n=0; n<i; n++)
+      cout << p[n] << ", ";
+    delete[] p;
+  }
+  return 0;
+}

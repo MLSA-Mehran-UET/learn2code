@@ -1,0 +1,11 @@
+NUMPY: Numpy stands for numerical python. It is python's extension module and math library.Numpy id for all mathematical operations, arrays, matrices, and lists. 
+You can install numpy as:                   pip install numpy
+
+Pandas: Pandas is a library created to help developers work with "labeled" and "relational" data intuitively. It's based on two main data structures: "Series" and "Data Frames."
+You can install Pandas as:                 pip install manager and then pip install pandas
+
+Matplotlib: An alternative of MATLAB and extensiom of numpy that is used for plotting and data visualization. 
+You can install Matplotlib as:             install matplotlib
+
+Seaborn: Seaborn is an open-source Python library built on top of matplotlib. It is used for data visualization and exploratory data analysis.
+You can install it as:                      pip install seaborn
