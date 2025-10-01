@@ -1,0 +1,19 @@
+public class BSTNode
+{
+    public int Key;
+    public BSTNode Left, Right;
+    public BSTNode(int key) => Key = key;
+}
+
+public static class BST
+{
+    public static BSTNode Search(BSTNode root, int key)
+    {
+        while (root != null)
+        {
+            if (key == root.Key) return root;
+            root = key < root.Key ? root.Left : root.Right;
+        }
+        return null;
+    }
+}
