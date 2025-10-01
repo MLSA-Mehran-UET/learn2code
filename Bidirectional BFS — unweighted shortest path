@@ -1,0 +1,40 @@
+public static class BidirectionalBFS {
+    public static List<int> ShortestPath(Graph g, int s, int t) {
+        if (s == t) return new() { s };
+
+        var q1 = new Queue<int>(); var q2 = new Queue<int>();
+        var p1 = new Dictionary<int,int>(); var p2 = new Dictionary<int,int>();
+        var vis1 = new HashSet<int> { s }; var vis2 = new HashSet<int> { t };
+        q1.Enqueue(s); q2.Enqueue(t);
+
+        int meet = -1;
+        while (q1.Count > 0 && q2.Count > 0) {
+            if (Step(g, q1, vis1, vis2, p1, ref meet)) break;
+            if (Step(g, q2, vis2, vis1, p2, ref meet)) break;
+        }
+        if (meet == -1) return new();
+
+        var left = new List<int>();
+        for (int x = meet; x != s; x = p1[x]) left.Add(x);
+        left.Add(s); left.Reverse();
+
+        var right = new List<int>();
+        for (int x = meet; x != t; x = p2[x]) right.Add(x);
+        right.Add(t);
+
+        left.AddRange(right.Skip(1));
+        return left;
+    }
+
+    static bool Step(Graph g, Queue<int> q, HashSet<int> own, HashSet<int> other, Dictionary<int,int> parent, ref int meet) {
+        if (q.Count == 0) return false;
+        int u = q.Dequeue();
+        foreach (var (v, _) in g.Adj[u]) {
+            if (!own.Contains(v)) {
+                own.Add(v); parent[v] = u; q.Enqueue(v);
+                if (other.Contains(v)) { meet = v; return true; }
+            }
+        }
+        return false;
+    }
+}
