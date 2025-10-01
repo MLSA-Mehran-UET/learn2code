@@ -1,0 +1,23 @@
+using System.Collections.Generic;
+using System.Linq;
+
+public static class BeamSearch {
+    public static List<string> Search(
+        string start,
+        Func<string,bool> isGoal,
+        Func<string,IEnumerable<string>> expand,
+        Func<string,double> score,
+        int beamWidth = 3,
+        int maxSteps = 50)
+    {
+        var beam = new List<string> { start };
+        for (int step=0; step<maxSteps; step++) {
+            if (beam.Any(isGoal)) return new List<string>{ beam.First(isGoal) };
+            var cand = new List<string>();
+            foreach (var s in beam) cand.AddRange(expand(s));
+            if (cand.Count == 0) break;
+            beam = cand.OrderByDescending(score).Take(beamWidth).ToList();
+        }
+        return new List<string>(); // not found
+    }
+}
