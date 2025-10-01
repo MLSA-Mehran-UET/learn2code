@@ -1,0 +1,19 @@
+public class AVLNode
+{
+    public int Key, Height = 1;
+    public AVLNode Left, Right;
+    public AVLNode(int key) => Key = key;
+}
+
+public static class AVL
+{
+    public static AVLNode Search(AVLNode root, int key)
+    {
+        while (root != null)
+        {
+            if (key == root.Key) return root;
+            root = key < root.Key ? root.Left : root.Right;
+        }
+        return null;
+    }
+}
