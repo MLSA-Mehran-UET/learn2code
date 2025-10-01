@@ -1,0 +1,30 @@
+using System.Collections.Generic;
+
+public class BPlusNode
+{
+    public bool IsLeaf;
+    public List<int> Keys = new();
+    public List<BPlusNode> Children = new(); // internal nodes only
+    public BPlusNode NextLeaf;               // leaf-level linked list
+}
+
+public static class BPlusTree
+{
+    // Descend to appropriate leaf, then scan keys
+    public static bool Search(BPlusNode root, int key)
+    {
+        if (root == null) return false;
+
+        var cur = root;
+        while (!cur.IsLeaf)
+        {
+            int i = cur.Keys.BinarySearch(key);
+            if (i >= 0) i++;     // go to right child on equal (typical B+ convention)
+            else i = ~i;         // first greater-than position
+            cur = cur.Children[i];
+        }
+
+        // At leaf: exact lookup
+        return cur.Keys.BinarySearch(key) >= 0;
+    }
+}
