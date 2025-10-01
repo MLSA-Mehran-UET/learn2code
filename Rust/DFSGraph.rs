@@ -85,4 +85,3 @@ fn main() {
     let start_node = 0;
     println!("Starting DFS from node {}", start_node);
     dfs(&graph, start_node);
-}
