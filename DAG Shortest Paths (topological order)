@@ -1,0 +1,23 @@
+using System.Linq;
+
+public static class DAGShortestPath
+{
+    public static (Dictionary<int,double> dist, Dictionary<int,int> parent)
+    Solve(Dictionary<int,List<(int to,double w)>> Adj, IEnumerable<int> topo, int s)
+    {
+        var dist = Adj.Keys.ToDictionary(x => x, _ => double.PositiveInfinity);
+        var parent = new Dictionary<int,int>();
+        dist[s] = 0;
+
+        foreach (var u in topo)
+        {
+            if (double.IsPositiveInfinity(dist[u])) continue;
+            foreach (var (v,w) in Adj[u])
+            {
+                double nd = dist[u] + w;
+                if (nd < dist[v]) { dist[v] = nd; parent[v] = u; }
+            }
+        }
+        return (dist, parent);
+    }
+}
