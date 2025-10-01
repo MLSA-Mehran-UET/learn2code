@@ -1,0 +1,12 @@
+using System;
+using System.Collections.Generic;
+
+// General adjacency list: for unweighted use weight=1
+public class Graph {
+    public Dictionary<int, List<(int to, double w)>> Adj = new();
+    public void AddEdge(int u, int v, double w = 1.0) {
+        if (!Adj.ContainsKey(u)) Adj[u] = new();
+        Adj[u].Add((v, w));
+        if (!Adj.ContainsKey(v)) Adj[v] = new(); // ensure key exists
+    }
+}
