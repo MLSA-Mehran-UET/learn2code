@@ -1,0 +1,29 @@
+using System.Collections.Generic;
+
+public static class ZeroOneBFS
+{
+    // Returns distances from 's'. Graph: Adj[u] => list of (to, w) where w is 0 or 1
+    public static Dictionary<int,int> Dist(Dictionary<int,List<(int to, int w)>> Adj, int s)
+    {
+        var INF = int.MaxValue/4;
+        var dist = new Dictionary<int,int>();
+        foreach (var u in Adj.Keys) dist[u] = INF;
+        var dq = new LinkedList<int>();
+        dist[s] = 0; dq.AddFirst(s);
+
+        while (dq.Count > 0)
+        {
+            int u = dq.First.Value; dq.RemoveFirst();
+            foreach (var (v,w) in Adj[u])
+            {
+                int nd = dist[u] + w;
+                if (nd < dist[v])
+                {
+                    dist[v] = nd;
+                    if (w == 0) dq.AddFirst(v); else dq.AddLast(v);
+                }
+            }
+        }
+        return dist;
+    }
+}
