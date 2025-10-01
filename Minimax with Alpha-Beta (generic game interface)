@@ -1,0 +1,38 @@
+using System;
+using System.Collections.Generic;
+
+public interface IGameState<TMove> {
+    bool IsTerminal { get; }
+    double Evaluate();                 // heuristic for non-terminal cutoffs
+    IEnumerable<TMove> LegalMoves(bool maximizingPlayer);
+    IGameState<TMove> Apply(TMove move);
+}
+
+public static class AlphaBeta {
+    public static (double score, TMove best) Search<TMove>(IGameState<TMove> s, int depth, bool maxPlayer,
+        double alpha = double.NegativeInfinity, double beta = double.PositiveInfinity)
+    {
+        if (depth == 0 || s.IsTerminal) return (s.Evaluate(), default!);
+
+        TMove bestMove = default!;
+        if (maxPlayer) {
+            double best = double.NegativeInfinity;
+            foreach (var m in s.LegalMoves(true)) {
+                var (sc, _) = Search(s.Apply(m), depth-1, false, alpha, beta);
+                if (sc > best) { best = sc; bestMove = m; }
+                alpha = Math.Max(alpha, best);
+                if (beta <= alpha) break;
+            }
+            return (best, bestMove);
+        } else {
+            double best = double.PositiveInfinity;
+            foreach (var m in s.LegalMoves(false)) {
+                var (sc, _) = Search(s.Apply(m), depth-1, true, alpha, beta);
+                if (sc < best) { best = sc; bestMove = m; }
+                beta = Math.Min(beta, best);
+                if (beta <= alpha) break;
+            }
+            return (best, bestMove);
+        }
+    }
+}
