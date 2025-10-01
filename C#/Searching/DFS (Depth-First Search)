@@ -1,0 +1,13 @@
+public static class DFSAlgo {
+    public static List<int> DFS(Graph g, int start) {
+        var visited = new HashSet<int>();
+        var order = new List<int>();
+        void Dfs(int u) {
+            visited.Add(u); order.Add(u);
+            foreach (var (v, _) in g.Adj[u])
+                if (!visited.Contains(v)) Dfs(v);
+        }
+        Dfs(start);
+        return order;
+    }
+}
