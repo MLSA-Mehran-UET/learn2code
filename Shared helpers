@@ -1,0 +1,14 @@
+public static class PathUtil
+{
+    public static List<T> ReconstructPath<T>(T start, T goal, Dictionary<T, T> parent)
+    {
+        var path = new List<T>();
+        if (!EqualityComparer<T>.Default.Equals(start, goal) && !parent.ContainsKey(goal))
+            return path; // empty: unreachable
+        for (var cur = goal; !EqualityComparer<T>.Default.Equals(cur, start); cur = parent[cur])
+            path.Add(cur);
+        path.Add(start);
+        path.Reverse();
+        return path;
+    }
+}
