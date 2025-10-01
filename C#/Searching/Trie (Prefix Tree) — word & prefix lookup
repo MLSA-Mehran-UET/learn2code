@@ -1,0 +1,44 @@
+using System.Collections.Generic;
+
+public class TrieNode
+{
+    public bool IsWord;
+    public Dictionary<char, TrieNode> Next = new();
+}
+
+public class Trie
+{
+    private readonly TrieNode _root = new();
+
+    public void Insert(string word)
+    {
+        var cur = _root;
+        foreach (char ch in word)
+        {
+            if (!cur.Next.ContainsKey(ch)) cur.Next[ch] = new TrieNode();
+            cur = cur.Next[ch];
+        }
+        cur.IsWord = true;
+    }
+
+    public bool Search(string word)            // exact word
+    {
+        var node = FindNode(word);
+        return node != null && node.IsWord;
+    }
+
+    public bool StartsWith(string prefix)      // prefix check
+    {
+        return FindNode(prefix) != null;
+    }
+
+    private TrieNode FindNode(string s)
+    {
+        var cur = _root;
+        foreach (char ch in s)
+        {
+            if (!cur.Next.TryGetValue(ch, out cur)) return null;
+        }
+        return cur;
+    }
+}
