@@ -1,0 +1,8 @@
+var dict = new Dictionary<string, int> {
+    ["apple"] = 3, ["banana"] = 5
+};
+bool hasKey = dict.ContainsKey("apple");
+bool hasValue = dict.ContainsValue(5);
+if (dict.TryGetValue("banana", out int qty)) {
+    // qty == 5
+}
