@@ -1,0 +1,19 @@
+public static class UCS {
+    public static Dictionary<int,double> Search(Graph g, int start) {
+        var dist = new Dictionary<int,double>();
+        foreach (var u in g.Adj.Keys) dist[u] = double.PositiveInfinity;
+        dist[start] = 0;
+        var pq = new PriorityQueue<int,double>();
+        pq.Enqueue(start, 0);
+
+        while (pq.Count > 0) {
+            pq.TryDequeue(out int u, out double d);
+            if (d != dist[u]) continue;
+            foreach (var (v, w) in g.Adj[u]) {
+                double nd = d + w;
+                if (nd < dist[v]) { dist[v] = nd; pq.Enqueue(v, nd); }
+            }
+        }
+        return dist;
+    }
+}
