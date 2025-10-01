@@ -1,2 +1,0 @@
-var set = new HashSet<int> { 1, 2, 3 };
-bool ok = set.Contains(2); // O(1) average
