@@ -1,0 +1,16 @@
+using System;
+
+public static class SimAnneal {
+    static readonly Random Rng = new();
+    public static double Maximize(Func<double,double> f, double x0, double initTemp=1.0, double cool=0.995, int iters=5000) {
+        double x = x0, fx = f(x), T = initTemp;
+        for (int i=0;i<iters;i++) {
+            double cand = x + (Rng.NextDouble()*2-1)*T; // neighbor scaled by T
+            double fc = f(cand);
+            if (fc > fx || Math.Exp((fc - fx)/T) > Rng.NextDouble()) { x = cand; fx = fc; }
+            T *= cool;
+            if (T < 1e-8) break;
+        }
+        return x;
+    }
+}
