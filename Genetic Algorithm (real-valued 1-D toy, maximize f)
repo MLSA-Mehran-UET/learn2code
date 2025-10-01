@@ -1,0 +1,32 @@
+using System;
+using System.Linq;
+
+public static class GA {
+    static readonly Random R = new();
+
+    public static double Maximize(Func<double,double> f, int popSize=50, int gens=200, double mutStd=0.1) {
+        double[] pop = Enumerable.Range(0, popSize).Select(_ => R.NextDouble()*2 - 1).ToArray(); // [-1,1]
+        for (int g=0; g<gens; g++) {
+            var fit = pop.Select(f).ToArray();
+            // select top half
+            var order = pop.Zip(fit).OrderByDescending(p=>p.Second).Select(p=>p.First).ToArray();
+            var elite = order.Take(popSize/2).ToArray();
+
+            // crossover + mutation to refill
+            var children = new double[popSize/2];
+            for (int i=0;i<children.Length;i++) {
+                var a = elite[R.Next(elite.Length)];
+                var b = elite[R.Next(elite.Length)];
+                double child = 0.5*(a+b) + RandNormal()*mutStd;
+                children[i] = child;
+            }
+            pop = elite.Concat(children).ToArray();
+        }
+        return pop.OrderByDescending(f).First();
+
+        double RandNormal() { // Box-Muller
+            double u1 = 1.0 - R.NextDouble(), u2 = 1.0 - R.NextDouble();
+            return Math.Sqrt(-2.0*Math.Log(u1)) * Math.Cos(2*Math.PI*u2);
+        }
+    }
+}
