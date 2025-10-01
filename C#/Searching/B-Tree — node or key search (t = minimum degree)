@@ -1,0 +1,22 @@
+using System;
+using System.Collections.Generic;
+
+public class BTreeNode
+{
+    public int T;                 // min degree
+    public List<int> Keys = new();
+    public List<BTreeNode> Children = new(); // size = Keys.Count + 1 when not leaf
+    public bool IsLeaf => Children.Count == 0;
+
+    public BTreeNode(int t) => T = t;
+
+    // Returns tuple (node, index) if found, else (null, -1)
+    public (BTreeNode node, int index) Search(int key)
+    {
+        int i = Keys.BinarySearch(key);
+        if (i >= 0) return (this, i);
+        i = ~i; // insertion position
+        if (IsLeaf) return (null, -1);
+        return Children[i].Search(key);
+    }
+}
