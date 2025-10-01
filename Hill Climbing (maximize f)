@@ -1,0 +1,13 @@
+public static class HillClimb {
+    public static double Maximize(Func<double,double> f, double x0, double step=0.01, int iters=1000) {
+        double x = x0, fx = f(x);
+        for (int i=0;i<iters;i++) {
+            double xl = x - step, xr = x + step;
+            double fl = f(xl), fr = f(xr);
+            if (fl > fx && fl >= fr) { x = xl; fx = fl; }
+            else if (fr > fx)       { x = xr; fx = fr; }
+            else break; // local optimum
+        }
+        return x;
+    }
+}
