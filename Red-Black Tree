@@ -1,0 +1,22 @@
+public enum Color { Red, Black }
+
+public class RBNode
+{
+    public int Key;
+    public Color Color;
+    public RBNode Left, Right, Parent;
+    public RBNode(int key, Color color = Color.Red) { Key = key; Color = color; }
+}
+
+public static class RedBlack
+{
+    public static RBNode Search(RBNode root, int key)
+    {
+        while (root != null)
+        {
+            if (key == root.Key) return root;
+            root = key < root.Key ? root.Left : root.Right;
+        }
+        return null;
+    }
+}
