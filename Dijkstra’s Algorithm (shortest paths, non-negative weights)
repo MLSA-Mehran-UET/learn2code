@@ -1,0 +1,21 @@
+public static class Dijkstra {
+    public static (Dictionary<int,double> dist, Dictionary<int,int> parent)
+    ShortestPaths(Graph g, int start) {
+        var dist = new Dictionary<int,double>();
+        var parent = new Dictionary<int,int>();
+        foreach (var u in g.Adj.Keys) dist[u] = double.PositiveInfinity;
+        dist[start] = 0;
+        var pq = new PriorityQueue<int,double>();
+        pq.Enqueue(start, 0);
+
+        while (pq.Count > 0) {
+            pq.TryDequeue(out int u, out double du);
+            if (du != dist[u]) continue;
+            foreach (var (v, w) in g.Adj[u]) {
+                double nd = du + w;
+                if (nd < dist[v]) { dist[v] = nd; parent[v] = u; pq.Enqueue(v, nd); }
+            }
+        }
+        return (dist, parent);
+    }
+}
