@@ -1,0 +1,44 @@
+using System;
+
+public class SegmentTree
+{
+    private readonly int n;
+    private readonly long[] tree; // 1-indexed internal storage
+
+    public SegmentTree(int[] arr)
+    {
+        n = arr.Length;
+        tree = new long[4 * n];
+        Build(arr, 1, 0, n - 1);
+    }
+
+    private void Build(int[] a, int idx, int l, int r)
+    {
+        if (l == r) { tree[idx] = a[l]; return; }
+        int m = (l + r) / 2;
+        Build(a, idx * 2, l, m);
+        Build(a, idx * 2 + 1, m + 1, r);
+        tree[idx] = tree[idx * 2] + tree[idx * 2 + 1];
+    }
+
+    public long Query(int ql, int qr) => Query(1, 0, n - 1, ql, qr);
+
+    private long Query(int idx, int l, int r, int ql, int qr)
+    {
+        if (qr < l || r < ql) return 0;
+        if (ql <= l && r <= qr) return tree[idx];
+        int m = (l + r) / 2;
+        return Query(idx * 2, l, m, ql, qr) + Query(idx * 2 + 1, m + 1, r, ql, qr);
+    }
+
+    public void Update(int pos, int newValue) => Update(1, 0, n - 1, pos, newValue);
+
+    private void Update(int idx, int l, int r, int pos, int val)
+    {
+        if (l == r) { tree[idx] = val; return; }
+        int m = (l + r) / 2;
+        if (pos <= m) Update(idx * 2, l, m, pos, val);
+        else Update(idx * 2 + 1, m + 1, r, pos, val);
+        tree[idx] = tree[idx * 2] + tree[idx * 2 + 1];
+    }
+}
