@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+
+public class SkipListNode<TK,TV> where TK : IComparable<TK> {
+    public TK Key; public TV Val;
+    public SkipListNode<TK,TV>[] Next;
+    public SkipListNode(int level, TK k=default, TV v=default){ Key=k; Val=v; Next=new SkipListNode<TK,TV>[level]; }
+}
+
+public class SkipList<TK,TV> where TK : IComparable<TK> {
+    readonly Random R = new(); readonly int MaxL; int Level;
+    readonly SkipListNode<TK,TV> Head;
+    public SkipList(int maxLevel=16){ MaxL=maxLevel; Level=1; Head=new SkipListNode<TK,TV>(MaxL); }
+
+    int RandLevel(){ int l=1; while(l<MaxL && R.Next(2)==0) l++; return l; }
+
+    public bool TryGet(TK key, out TV val){
+        var x = Head;
+        for (int i=Level-1;i>=0;i--)
+            while (x.Next[i]!=null && x.Next[i].Key.CompareTo(key)<0) x=x.Next[i];
+        x = x.Next[0];
+        if (x!=null && x.Key.CompareTo(key)==0){ val=x.Val; return true; }
+        val=default!; return false;
+    }
+
+    public void Insert(TK key, TV val){
+        var update=new SkipListNode<TK,TV>[MaxL];
+        var x=Head;
+        for (int i=Level-1;i>=0;i--){
+            while (x.Next[i]!=null && x.Next[i].Key.CompareTo(key)<0) x=x.Next[i];
+            update[i]=x;
+        }
+        x=x.Next[0];
+        if (x!=null && x.Key.CompareTo(key)==0){ x.Val=val; return; }
+        int lvl=RandLevel(); if (lvl>Level){ for(int i=Level;i<lvl;i++) update[i]=Head; Level=lvl; }
+        var n=new SkipListNode<TK,TV>(lvl, key, val);
+        for (int i=0;i<lvl;i++){ n.Next[i]=update[i].Next[i]; update[i].Next[i]=n; }
+    }
+}
