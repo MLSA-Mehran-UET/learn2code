@@ -1,0 +1,33 @@
+public class TstNode {
+    public char C; public bool End;
+    public TstNode Lo, Eq, Hi;
+    public TstNode(char c){ C=c; }
+}
+
+public class TernarySearchTree
+{
+    private TstNode root;
+
+    public void Insert(string s){ root = Insert(root, s, 0); }
+    private TstNode Insert(TstNode n, string s, int i){
+        char c = s[i];
+        if (n==null) n = new TstNode(c);
+        if (c < n.C) n.Lo = Insert(n.Lo, s, i);
+        else if (c > n.C) n.Hi = Insert(n.Hi, s, i);
+        else if (i+1 < s.Length) n.Eq = Insert(n.Eq, s, i+1);
+        else n.End = true;
+        return n;
+    }
+
+    public bool Search(string s){
+        var n = root; int i=0;
+        while (n!=null){
+            char c = s[i];
+            if (c < n.C) n = n.Lo;
+            else if (c > n.C) n = n.Hi;
+            else if (++i == s.Length) return n.End;
+            else n = n.Eq;
+        }
+        return false;
+    }
+}
