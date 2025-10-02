@@ -1,0 +1,40 @@
+using System;
+using System.Collections.Generic;
+
+public static class IDAStar
+{
+    public static List<int> FindPath(
+        Dictionary<int,List<(int to,double w)>> Adj, int start, int goal, Func<int,double> h)
+    {
+        double bound = h(start);
+        var path = new List<int> { start };
+        while (true)
+        {
+            double t = Search(path, 0, bound, goal, h, Adj);
+            if (t == -1) return new List<int>(path);
+            if (double.IsPositiveInfinity(t)) return new();
+            bound = t;
+        }
+    }
+
+    static double Search(List<int> path, double g, double bound, int goal,
+                         Func<int,double> h, Dictionary<int,List<(int to,double w)>> Adj)
+    {
+        int node = path[^1];
+        double f = g + h(node);
+        if (f > bound) return f;
+        if (node == goal) return -1;
+
+        double min = double.PositiveInfinity;
+        foreach (var (v,w) in Adj[node])
+        {
+            if (path.Contains(v)) continue; // avoid cycles
+            path.Add(v);
+            double t = Search(path, g + w, bound, goal, h, Adj);
+            if (t == -1) return -1;
+            if (t < min) min = t;
+            path.RemoveAt(path.Count - 1);
+        }
+        return min;
+    }
+}
