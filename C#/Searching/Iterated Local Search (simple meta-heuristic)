@@ -1,0 +1,25 @@
+using System;
+
+public static class IteratedLocalSearch
+{
+    static readonly Random R = new();
+
+    public static T Maximize<T>(
+        T start,
+        Func<T,double> score,
+        Func<T,T> localImprove,
+        Func<T,T> perturb,
+        int iters = 200)
+    {
+        var best = localImprove(start);
+        double bestVal = score(best);
+
+        for (int i=0; i<iters; i++)
+        {
+            var cand = localImprove(perturb(best));
+            double val = score(cand);
+            if (val > bestVal) { best = cand; bestVal = val; }
+        }
+        return best;
+    }
+}
