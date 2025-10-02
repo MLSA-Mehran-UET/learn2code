@@ -1,0 +1,32 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public static class MinHashLSH {
+    // Each set -> signature of k hashes; banding groups signatures to buckets
+    public static int[] MinHashSignature(HashSet<int> set, (int a,int b,int p)[] funcs, int m){
+        int k = funcs.Length; var sig = new int[k];
+        for (int i=0;i<k;i++){
+            int best=int.MaxValue, a=funcs[i].a, b=funcs[i].b, p=funcs[i].p;
+            foreach (int x in set) best = Math.Min(best, (a*x + b) % p);
+            sig[i] = best % m;
+        }
+        return sig;
+    }
+
+    public static Dictionary<string,List<string>> LSHBuckets(Dictionary<string,HashSet<int>> items,
+        (int a,int b,int p)[] funcs, int m, int bands, int rowsPerBand)
+    {
+        var buckets = new Dictionary<string,List<string>>();
+        foreach (var (id, set) in items){
+            var sig = MinHashSignature(set, funcs, m);
+            for (int b=0;b<bands;b++){
+                var slice = string.Join(",", sig.Skip(b*rowsPerBand).Take(rowsPerBand));
+                string key = $"b{b}:{slice}";
+                if (!buckets.ContainsKey(key)) buckets[key] = new();
+                buckets[key].Add(id);
+            }
+        }
+        return buckets; // candidates share a bucket
+    }
+}
