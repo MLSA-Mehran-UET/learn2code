@@ -1,0 +1,18 @@
+using System.Collections.Generic;
+
+public class MinPQ<T>
+{
+    readonly List<(T item,double pri)> h = new();
+    public int Count => h.Count;
+    public void Enqueue(T item, double pri) { h.Add((item,pri)); SiftUp(h.Count-1); }
+    public bool TryDequeue(out T item, out double pri)
+    {
+        if (h.Count == 0) { item = default; pri = 0; return false; }
+        (item, pri) = h[0];
+        var last = h[^1]; h.RemoveAt(h.Count-1);
+        if (h.Count > 0) { h[0] = last; SiftDown(0); }
+        return true;
+    }
+    void SiftUp(int i){ while(i>0){int p=(i-1)/2; if(h[p].pri<=h[i].pri) break; (h[p],h[i])=(h[i],h[p]); i=p; } }
+    void SiftDown(int i){ for(;;){int l=i*2+1,r=l+1,sm=i; if(l<h.Count&&h[l].pri<h[sm].pri) sm=l; if(r<h.Count&&h[r].pri<h[sm].pri) sm=r; if(sm==i) break; (h[i],h[sm])=(h[sm],h[i]); i=sm; } }
+}
