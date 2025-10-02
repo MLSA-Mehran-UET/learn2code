@@ -1,0 +1,32 @@
+using System;
+using System.Security.Cryptography;
+
+public class BloomFilter {
+    private readonly BitArray _bits;
+    private readonly int _k; // hash functions
+    public BloomFilter(int sizeBits, int hashFunctions=3) { _bits=new BitArray(sizeBits); _k=hashFunctions; }
+
+    public void Add(string s){
+        foreach (int h in Hashes(s)) _bits[Pos(h)] = true;
+    }
+    public bool MightContain(string s){
+        foreach (int h in Hashes(s)) if (!_bits[Pos(h)]) return false;
+        return true;
+    }
+    int Pos(int h) => Math.Abs(h % _bits.Length);
+
+    int[] Hashes(string s){
+        // derive k hashes via SHA256 chunks
+        using var sha = SHA256.Create();
+        var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(s));
+        var hs = new int[_k];
+        for(int i=0;i<_k;i++) hs[i] = BitConverter.ToInt32(bytes, (i*4) % bytes.Length);
+        return hs;
+    }
+
+    class BitArray {
+        readonly int[] a; public int Length {get;}
+        public BitArray(int bits){ Length=bits; a=new int[(bits+31)/32]; }
+        public bool this[int i] { get => (a[i>>5] & (1<<(i&31)))!=0; set { if(value) a[i>>5]|=1<<(i&31); else a[i>>5]&=~(1<<(i&31)); } }
+    }
+}
