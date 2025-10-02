@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+
+public static class FringeSearch
+{
+    public static List<int> FindPath(
+        Dictionary<int,List<(int to,double w)>> adj, int s, int g, Func<int,double> h)
+    {
+        var parent = new Dictionary<int,int>();
+        var gScore = new Dictionary<int,double> { [s]=0 };
+        double fLimit = h(s);
+
+        while (true)
+        {
+            double nextFLimit = double.PositiveInfinity;
+            var fringe = new Stack<int>(); fringe.Push(s);
+
+            var visitedInIter = new HashSet<int> { s };
+            while (fringe.Count > 0)
+            {
+                int u = fringe.Pop();
+                double f = gScore[u] + h(u);
+                if (f > fLimit) { nextFLimit = Math.Min(nextFLimit, f); continue; }
+                if (u == g) return Reconstruct(parent, g);
+
+                foreach (var (v,w) in adj[u])
+                {
+                    double ng = gScore[u] + w;
+                    if (!gScore.TryGetValue(v, out double gv) || ng < gv)
+                    {
+                        gScore[v] = ng; parent[v] = u;
+                        if (!visitedInIter.Contains(v)) { fringe.Push(v); visitedInIter.Add(v); }
+                    }
+                }
+            }
+            if (double.IsPositiveInfinity(nextFLimit)) return new();
+            fLimit = nextFLimit;
+        }
+
+        static List<int> Reconstruct(Dictionary<int,int> p, int t){
+            var path = new List<int>{ t };
+            while (p.ContainsKey(path[^1])) path.Add(p[path[^1]]);
+            path.Reverse(); return path;
+        }
+    }
+}
