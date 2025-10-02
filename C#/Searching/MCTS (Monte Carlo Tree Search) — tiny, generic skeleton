@@ -1,0 +1,84 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public interface IMctsState<TMove>
+{
+    bool IsTerminal { get; }
+    int CurrentPlayer { get; }                 // +1 / -1 or 0/1
+    IEnumerable<TMove> LegalMoves();
+    IMctsState<TMove> Apply(TMove move);
+    double RolloutValue();                     // random playout result from this state (from current player's pov)
+}
+
+public class MCTS<TMove>
+{
+    class Node {
+        public IMctsState<TMove> S;
+        public Node Parent;
+        public TMove Move;
+        public List<Node> Children = new();
+        public int N;          // visits
+        public double W;       // total reward
+        public bool FullyExpanded => Children.Count == _moves.Count;
+        List<TMove> _moves;
+        public Node(IMctsState<TMove> s, Node p = null, TMove m = default)
+        { S = s; Parent = p; Move = m; _moves = s.LegalMoves().ToList(); }
+        public IEnumerable<TMove> UntriedMoves() =>
+            _moves.Where(m => !Children.Any(c => EqualityComparer<TMove>.Default.Equals(c.Move, m)));
+    }
+
+    readonly Random _rng = new();
+    readonly int _iterations;
+    readonly double _c;
+
+    public MCTS(int iterations = 5000, double explorationC = 1.414) { _iterations = iterations; _c = explorationC; }
+
+    public TMove Search(IMctsState<TMove> root)
+    {
+        var R = new Node(root);
+        for (int i=0; i<_iterations; i++)
+        {
+            var node = Select(R);
+            if (!node.S.IsTerminal && node.UntriedMoves().Any())
+                node = Expand(node);
+            double result = Simulate(node.S);
+            Backprop(node, result, node.S.CurrentPlayer);
+        }
+        return R.Children.OrderByDescending(c => c.N).First().Move;
+    }
+
+    Node Select(Node n)
+    {
+        while (!n.S.IsTerminal && n.Children.Count > 0 && n.FullyExpanded)
+            n = n.Children.OrderByDescending(UCT).First();
+        return n;
+
+        double UCT(Node x)
+        {
+            if (x.N == 0) return double.PositiveInfinity;
+            return x.W / x.N + _c * Math.Sqrt(Math.Log(n.N + 1) / x.N);
+        }
+    }
+
+    Node Expand(Node n)
+    {
+        var m = n.UntriedMoves().OrderBy(_ => _rng.Next()).First();
+        var child = new Node(n.S.Apply(m), n, m);
+        n.Children.Add(child);
+        return child;
+    }
+
+    double Simulate(IMctsState<TMove> s) => s.RolloutValue();
+
+    void Backprop(Node n, double value, int playerAtNode)
+    {
+        while (n != null)
+        {
+            n.N++;
+            // assume value is from perspective of player that started this state's turn.
+            n.W += value;
+            n = n.Parent;
+        }
+    }
+}
