@@ -1,0 +1,20 @@
+using System.Collections.Generic;
+
+public static class MultiSourceBFS
+{
+    public static Dictionary<int,int> Dist(Dictionary<int,List<int>> adj, IEnumerable<int> sources)
+    {
+        var dist = new Dictionary<int,int>();
+        var q = new Queue<int>();
+        foreach (var s in sources) { dist[s] = 0; q.Enqueue(s); }
+
+        while (q.Count > 0)
+        {
+            int u = q.Dequeue();
+            foreach (var v in adj[u])
+                if (!dist.ContainsKey(v))
+                { dist[v] = dist[u] + 1; q.Enqueue(v); }
+        }
+        return dist;
+    }
+}
