@@ -1,0 +1,79 @@
+using System;
+using System.Collections.Generic;
+
+public static class BiDijkstra
+{
+    public static List<int> ShortestPath(
+        Dictionary<int,List<(int to,double w)>> Adj, int s, int t)
+    {
+        var INF = double.PositiveInfinity;
+        var distF = new Dictionary<int,double>(); var distB = new Dictionary<int,double>();
+        var prevF = new Dictionary<int,int>();   var prevB = new Dictionary<int,int>();
+        foreach (var u in Adj.Keys) { distF[u] = INF; distB[u] = INF; }
+        distF[s] = 0; distB[t] = 0;
+
+        var pqF = new PriorityQueue<int,double>(); var pqB = new PriorityQueue<int,double>();
+        pqF.Enqueue(s, 0); pqB.Enqueue(t, 0);
+        var visitedF = new HashSet<int>(); var visitedB = new HashSet<int>();
+        int meet = -1; double best = INF;
+
+        while (pqF.Count > 0 && pqB.Count > 0)
+        {
+            // forward step
+            pqF.TryDequeue(out int u, out double du);
+            if (visitedF.Add(u))
+            {
+                if (distF[u] + distB.GetValueOrDefault(u, INF) < best) {
+                    best = distF[u] + distB[u]; meet = u;
+                }
+                foreach (var (v,w) in Adj[u])
+                {
+                    double nd = du + w;
+                    if (nd < distF[v]) { distF[v] = nd; prevF[v] = u; pqF.Enqueue(v, nd); }
+                }
+            }
+
+            // backward step (using reverse edges)
+            pqB.TryDequeue(out int x, out double dx);
+            if (visitedB.Add(x))
+            {
+                if (distF.GetValueOrDefault(x, INF) + distB[x] < best) {
+                    best = distF[x] + distB[x]; meet = x;
+                }
+                foreach (var (p,w) in InNeighbors(Adj, x)) // build or cache reverse adjacency
+                {
+                    double nd = dx + w;
+                    if (nd < distB[p]) { distB[p] = nd; prevB[p] = x; pqB.Enqueue(p, nd); }
+                }
+            }
+
+            if (meet != -1 && pqF.Count > 0 && pqB.Count > 0 &&
+                pqF.PeekPriority() + pqB.PeekPriority() >= best) break;
+        }
+        if (meet == -1) return new();
+
+        var left = PathUtil.ReconstructPath(s, meet, prevF);
+        var right = new List<int>();
+        for (int cur = meet; cur != t; cur = prevB[cur]) right.Add(cur);
+        right.Add(t);
+        left.AddRange(right.Skip(1));
+        return left;
+    }
+
+    // Helper to get reverse neighbors on the fly
+    static IEnumerable<(int from,double w)> InNeighbors(
+        Dictionary<int,List<(int to,double w)>> Adj, int v)
+    {
+        foreach (var (u, edges) in Adj)
+            foreach (var (to,w) in edges)
+                if (to == v) yield return (u,w);
+    }
+
+    // PeekPriority extension for PriorityQueue
+    static double PeekPriority(this PriorityQueue<int,double> pq)
+    {
+        pq.TryDequeue(out int u, out double p);
+        pq.Enqueue(u, p);
+        return p;
+    }
+}
