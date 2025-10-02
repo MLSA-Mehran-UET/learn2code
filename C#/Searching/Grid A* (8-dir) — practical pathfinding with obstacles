@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+
+public static class GridAStar {
+    static readonly (int dx,int dy,double w)[] Dir = {
+        (1,0,1),( -1,0,1),(0,1,1),(0,-1,1),
+        (1,1,Math.Sqrt(2)), (1,-1,Math.Sqrt(2)), (-1,1,Math.Sqrt(2)), (-1,-1,Math.Sqrt(2))
+    };
+
+    public static List<(int x,int y)> Find(bool[,] blocked, (int x,int y) s, (int x,int y) g) {
+        int n=blocked.GetLength(0), m=blocked.GetLength(1);
+        double Heu(int x,int y)=> Math.Max(Math.Abs(x-g.x), Math.Abs(y-g.y)); // Chebyshev
+
+        var gScore = new Dictionary<(int,int),double> { [s]=0 };
+        var parent = new Dictionary<(int,int),(int,int)>();
+        var open = new PriorityQueue<(int,int),double>(); open.Enqueue(s, Heu(s.x,s.y));
+        var closed = new HashSet<(int,int)>();
+
+        bool In(int x,int y)=> x>=0&&x<n&&y>=0&&y<m&&!blocked[x,y];
+
+        while(open.Count>0){
+            open.TryDequeue(out var u, out _);
+            if (u.Equals(g)) return Reconstruct(s,g,parent);
+            if (!closed.Add(u)) continue;
+
+            foreach (var (dx,dy,w) in Dir){
+                int vx=u.Item1+dx, vy=u.Item2+dy;
+                if (!In(vx,vy)) continue;
+                double ng = gScore[u] + w;
+                if (!gScore.TryGetValue((vx,vy), out double gv) || ng < gv){
+                    gScore[(vx,vy)]=ng;
+                    parent[(vx,vy)]=u;
+                    open.Enqueue((vx,vy), ng + Heu(vx,vy));
+                }
+            }
+        }
+        return new();
+
+        static List<(int,int)> Reconstruct((int,int) s, (int,int) g, Dictionary<(int,int),(int,int)> p){
+            var path = new List<(int,int)>{ g };
+            while(!path[^1].Equals(s)) path.Add(p[path[^1]]);
+            path.Reverse(); return path;
+        }
+    }
+}
