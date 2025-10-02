@@ -1,0 +1,17 @@
+using System;
+using System.Linq;
+
+public class SuffixArray {
+    private readonly string s; private readonly int[] sa;
+    public SuffixArray(string s){ this.s=s; sa=Enumerable.Range(0,s.Length).OrderBy(i=>s[i..]).ToArray(); }
+    public bool Contains(string pat){
+        int l=0,r=sa.Length-1;
+        while(l<=r){
+            int m=(l+r)/2;
+            int cmp = string.Compare(s.AsSpan(sa[m], Math.Min(pat.Length, s.Length-sa[m])), pat, StringComparison.Ordinal);
+            if (cmp==0) return true;
+            if (cmp<0) l=m+1; else r=m-1;
+        }
+        return false;
+    }
+}
