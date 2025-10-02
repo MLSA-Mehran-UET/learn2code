@@ -1,0 +1,49 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public static class RBFS
+{
+    public static List<int> Search(
+        Dictionary<int,List<(int to,double w)>> Adj, int start, int goal, Func<int,double> h)
+    {
+        var path = new List<int> { start };
+        double fLimit = h(start);
+        while (true)
+        {
+            var (result, newLimit) = RBFSInner(path, 0, fLimit, goal, h, Adj);
+            if (result != null) return result;
+            if (double.IsPositiveInfinity(newLimit)) return new();
+            fLimit = newLimit;
+        }
+    }
+
+    static (List<int> result, double fLimit) RBFSInner(
+        List<int> path, double g, double fLimit, int goal,
+        Func<int,double> h, Dictionary<int,List<(int to,double w)>> Adj)
+    {
+        int node = path[^1];
+        if (node == goal) return (new List<int>(path), fLimit);
+
+        var succ = new List<(int v, double g, double f)>();
+        foreach (var (v,w) in Adj[node])
+            if (!path.Contains(v))
+                succ.Add((v, g + w, Math.Max(g + w + h(v), fLimit))); // classic RBFS uses parent f as floor
+
+        if (succ.Count == 0) return (null, double.PositiveInfinity);
+
+        while (true)
+        {
+            succ = succ.OrderBy(s => s.f).ToList();
+            var best = succ[0];
+            if (best.f > fLimit) return (null, best.f);
+
+            double alt = succ.Count > 1 ? succ[1].f : double.PositiveInfinity;
+            path.Add(best.v);
+            var (res, newF) = RBFSInner(path, best.g, Math.Min(fLimit, alt), goal, h, Adj);
+            path.RemoveAt(path.Count - 1);
+            succ[0] = (best.v, best.g, newF);
+            if (res != null) return (res, newF);
+        }
+    }
+}
