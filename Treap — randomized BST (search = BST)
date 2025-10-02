@@ -1,0 +1,20 @@
+using System;
+
+public class TreapNode {
+    public int Key, Pri; public TreapNode L, R;
+    public TreapNode(int key, int pri){ Key=key; Pri=pri; }
+}
+public static class Treap {
+    static readonly Random R = new();
+    public static TreapNode Insert(TreapNode t, int key){
+        if (t==null) return new TreapNode(key, R.Next());
+        if (key < t.Key) { t.L = Insert(t.L, key); if (t.L.Pri < t.Pri) t = RotateRight(t); }
+        else if (key > t.Key){ t.R = Insert(t.R, key); if (t.R.Pri < t.Pri) t = RotateLeft(t); }
+        return t;
+    }
+    public static TreapNode Search(TreapNode t, int key){
+        while (t!=null && t.Key!=key) t = key < t.Key ? t.L : t.R; return t;
+    }
+    static TreapNode RotateRight(TreapNode y){ var x=y.L; y.L=x.R; x.R=y; return x; }
+    static TreapNode RotateLeft (TreapNode x){ var y=x.R; x.R=y.L; y.L=x; return y; }
+}
