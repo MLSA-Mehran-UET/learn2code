@@ -1,0 +1,35 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public static class MeetInTheMiddle
+{
+    public static bool SubsetSum(int[] a, int target)
+    {
+        int n = a.Length, m = n/2;
+        var left = a[..m]; var right = a[m..];
+
+        var L = AllSums(left);
+        var R = AllSums(right); R.Sort();
+
+        foreach (var x in L)
+        {
+            int need = target - x;
+            int i = R.BinarySearch(need);
+            if (i >= 0) return true;
+        }
+        return false;
+
+        static List<int> AllSums(int[] arr)
+        {
+            var sums = new List<int>();
+            int k = arr.Length, lim = 1<<k;
+            for (int mask=0; mask<lim; mask++){
+                int s = 0;
+                for (int i=0;i<k;i++) if ((mask&(1<<i))!=0) s += arr[i];
+                sums.Add(s);
+            }
+            return sums;
+        }
+    }
+}
