@@ -1,0 +1,25 @@
+using System.Collections.Generic;
+
+public class LRUCache<K,V> {
+    readonly int _cap;
+    readonly Dictionary<K, LinkedListNode<(K key,V val)>> _map = new();
+    readonly LinkedList<(K key,V val)> _list = new();
+    public LRUCache(int capacity){ _cap = capacity; }
+
+    public bool TryGet(K k, out V v){
+        if (_map.TryGetValue(k, out var node)){
+            _list.Remove(node); _list.AddFirst(node); v = node.Value.val; return true;
+        }
+        v = default!; return false;
+    }
+    public void Put(K k, V v){
+        if (_map.TryGetValue(k, out var node)){
+            node.Value = (k,v); _list.Remove(node); _list.AddFirst(node);
+        } else {
+            if (_map.Count == _cap){
+                var tail = _list.Last; _map.Remove(tail.Value.key); _list.RemoveLast();
+            }
+            var nn = new LinkedListNode<(K,V)>((k,v)); _list.AddFirst(nn); _map[k]=nn;
+        }
+    }
+}
