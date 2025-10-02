@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+
+public static class BellmanFord
+{
+    public static (Dictionary<int,double> dist, bool hasNegCycle)
+    Solve(IEnumerable<(int u,int v,double w)> edges, IEnumerable<int> nodes, int s)
+    {
+        var INF = double.PositiveInfinity;
+        var dist = new Dictionary<int,double>();
+        foreach (var n in nodes) dist[n] = INF;
+        dist[s] = 0;
+
+        int N = 0; foreach (var _ in nodes) N++;
+
+        // Relax edges N-1 times
+        for (int i=0; i<N-1; i++)
+        {
+            bool changed = false;
+            foreach (var (u,v,w) in edges)
+            {
+                if (dist[u] + w < dist[v])
+                { dist[v] = dist[u] + w; changed = true; }
+            }
+            if (!changed) break;
+        }
+
+        // Detect negative cycle
+        foreach (var (u,v,w) in edges)
+            if (dist[u] + w < dist[v]) return (dist, true);
+
+        return (dist, false);
+    }
+}
