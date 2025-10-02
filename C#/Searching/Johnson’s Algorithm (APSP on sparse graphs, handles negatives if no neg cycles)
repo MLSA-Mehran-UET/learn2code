@@ -1,0 +1,64 @@
+using System;
+using System.Collections.Generic;
+
+public static class Johnson
+{
+    public static (Dictionary<int,Dictionary<int,double>> dist, bool negCycle)
+    APSP(Dictionary<int,List<(int to,double w)>> adj)
+    {
+        // Add super-source q -> all nodes with 0 weight
+        var nodes = new List<int>(adj.Keys);
+        int q = int.MinValue; adj[q] = new();
+        foreach (var v in nodes) adj[q].Add((v, 0));
+
+        // Bellman–Ford potentials h
+        var edges = new List<(int u,int v,double w)>();
+        foreach (var (u, list) in adj) foreach (var (v,w) in list) edges.Add((u,v,w));
+
+        var (h, hasNeg) = BellmanFord.Solve(edges, adj.Keys, q);
+        if (hasNeg) { adj.Remove(q); return (new(), true); }
+
+        // Reweight edges w' = w + h[u] - h[v]
+        var re = new Dictionary<int,List<(int to,double w)>>();
+        foreach (var u in adj.Keys) re[u] = new();
+        foreach (var (u, list) in adj)
+            foreach (var (v,w) in list)
+                if (u != q) re[u].Add((v, w + h[u] - h[v]));
+        re.Remove(q); adj.Remove(q);
+
+        // Run Dijkstra from each node
+        var all = new Dictionary<int,Dictionary<int,double>>();
+        foreach (var s in re.Keys)
+        {
+            var (dist, _) = Dijkstra.ShortestPaths(new Graph{ Adj = re }, s);
+            // Undo reweight: d(u,v) = d'(u,v) - h[u] + h[v]
+            var fixedD = new Dictionary<int,double>();
+            foreach (var v in dist.Keys)
+                fixedD[v] = double.IsPositiveInfinity(dist[v]) ? dist[v] : dist[v] - h[s] + h[v];
+            all[s] = fixedD;
+        }
+        return (all, false);
+    }
+}
+
+// Minimal Graph + Dijkstra re-use
+public class Graph { public Dictionary<int,List<(int to,double w)>> Adj = new(); }
+public static class Dijkstra {
+    public static (Dictionary<int,double> dist, Dictionary<int,int> parent)
+    ShortestPaths(Graph g, int start) {
+        var dist = new Dictionary<int,double>();
+        var parent = new Dictionary<int,int>();
+        foreach (var u in g.Adj.Keys) dist[u] = double.PositiveInfinity;
+        dist[start] = 0;
+        var pq = new PriorityQueue<int,double>(); pq.Enqueue(start, 0);
+        while (pq.Count>0) {
+            pq.TryDequeue(out int u, out double du);
+            if (du != dist[u]) continue;
+            foreach (var (v,w) in g.Adj[u]) {
+                double nd = du + w;
+                if (nd < dist[v]) { dist[v] = nd; parent[v] = u; pq.Enqueue(v, nd); }
+            }
+        }
+        return (dist, parent);
+    }
+}
