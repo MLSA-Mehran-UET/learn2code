@@ -1,0 +1,37 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+public static class TabuSearch
+{
+    public static T Optimize<T>(
+        T start,
+        Func<T,double> score,
+        Func<T,IEnumerable<T>> neighbors,
+        int tabuSize = 50,
+        int maxIter = 2000)
+    {
+        var best = start; double bestVal = score(best);
+        var cur = start;  double curVal  = bestVal;
+        var tabu = new Queue<T>();
+        var tabuSet = new HashSet<T>();
+
+        void AddTabu(T x) { tabu.Enqueue(x); tabuSet.Add(x); if (tabu.Count > tabuSize) tabuSet.Remove(tabu.Dequeue()); }
+
+        for (int it=0; it<maxIter; it++)
+        {
+            var cand = neighbors(cur)
+                .Where(n => !tabuSet.Contains(n))
+                .Select(n => (n, v: score(n)))
+                .OrderByDescending(p => p.v)
+                .FirstOrDefault();
+
+            if (EqualityComparer<T>.Default.Equals(cand.n, default)) break;
+
+            cur = cand.n; curVal = cand.v;
+            AddTabu(cur);
+            if (curVal > bestVal) { best = cur; bestVal = curVal; }
+        }
+        return best;
+    }
+}
