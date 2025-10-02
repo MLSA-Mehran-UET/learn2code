@@ -1,0 +1,36 @@
+using System;
+
+public class KDNode {
+    public double X, Y; public KDNode Left, Right;
+    public KDNode(double x, double y) { X = x; Y = y; }
+}
+
+public static class KDTree {
+    public static KDNode Build((double x,double y)[] pts, int l=0, int r=-1, int depth=0) {
+        if (r==-1) r = pts.Length-1;
+        if (l>r) return null;
+        int m=(l+r)/2; bool splitX = (depth%2)==0;
+        Array.Sort(pts, l, r-l+1, Comparer<(double,double)>.Create((a,b) =>
+            splitX ? a.x.CompareTo(b.x) : a.y.CompareTo(b.y)));
+        var node = new KDNode(pts[m].x, pts[m].y);
+        node.Left  = Build(pts, l, m-1, depth+1);
+        node.Right = Build(pts, m+1, r, depth+1);
+        return node;
+    }
+
+    public static (double x,double y,double d2) Nearest(KDNode root, double qx, double qy) {
+        (double x,double y,double d2) best = (double.NaN,double.NaN,double.PositiveInfinity);
+        void Dfs(KDNode n, int depth){
+            if (n==null) return;
+            double d2 = (n.X-qx)*(n.X-qx) + (n.Y-qy)*(n.Y-qy);
+            if (d2 < best.d2) best = (n.X,n.Y,d2);
+            bool splitX = (depth%2)==0;
+            double delta = splitX ? qx - n.X : qy - n.Y;
+            var first  = delta<0 ? n.Left : n.Right;
+            var second = delta<0 ? n.Right: n.Left;
+            Dfs(first, depth+1);
+            if (delta*delta < best.d2) Dfs(second, depth+1);
+        }
+        Dfs(root,0); return best;
+    }
+}
