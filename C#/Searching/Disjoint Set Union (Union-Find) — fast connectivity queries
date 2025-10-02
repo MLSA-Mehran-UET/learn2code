@@ -1,0 +1,12 @@
+public class DSU
+{
+    private readonly int[] p, r;
+    public DSU(int n){ p=new int[n]; r=new int[n]; for(int i=0;i<n;i++) p[i]=i; }
+    public int Find(int x){ return p[x]==x ? x : p[x]=Find(p[x]); }
+    public bool Union(int a,int b){
+        a=Find(a); b=Find(b); if (a==b) return false;
+        if (r[a]<r[b]) (a,b)=(b,a);
+        p[b]=a; if (r[a]==r[b]) r[a]++; return true;
+    }
+    public bool Connected(int a,int b)=> Find(a)==Find(b);
+}
