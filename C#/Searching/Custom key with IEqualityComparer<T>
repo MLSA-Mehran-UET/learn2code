@@ -1,0 +1,15 @@
+using System;
+using System.Collections.Generic;
+
+public readonly record struct Point(int X, int Y);
+
+public sealed class PointComparer : IEqualityComparer<Point>
+{
+    public bool Equals(Point a, Point b) => a.X == b.X && a.Y == b.Y;
+    public int GetHashCode(Point p) => HashCode.Combine(p.X, p.Y);
+}
+
+// Usage:
+var dict = new Dictionary<Point, string>(new PointComparer());
+dict[new Point(1,2)] = "A";
+bool ok = dict.ContainsKey(new Point(1,2));
