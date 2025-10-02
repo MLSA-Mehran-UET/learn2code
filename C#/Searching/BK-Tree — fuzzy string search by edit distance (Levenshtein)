@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+
+public class BKNode {
+    public string Word;
+    public Dictionary<int,BKNode> Children = new();
+    public BKNode(string w) { Word = w; }
+}
+
+public class BKTree {
+    BKNode _root;
+    public void Insert(string w) {
+        if (_root==null){ _root = new BKNode(w); return; }
+        var cur=_root;
+        while(true){
+            int d = EditDistance(cur.Word, w);
+            if (!cur.Children.TryGetValue(d, out var nxt)) { cur.Children[d]=new BKNode(w); break; }
+            cur = nxt;
+        }
+    }
+    public IEnumerable<string> Search(string q, int tol) {
+        var res = new List<string>();
+        void Dfs(BKNode n){
+            int d = EditDistance(n.Word, q);
+            if (d<=tol) res.Add(n.Word);
+            for (int k=d-tol; k<=d+tol; k++)
+                if (n.Children.TryGetValue(k, out var c)) Dfs(c);
+        }
+        if (_root!=null) Dfs(_root);
+        return res;
+    }
+
+    static int EditDistance(string a, string b){
+        int n=a.Length,m=b.Length; var dp=new int[m+1];
+        for(int j=0;j<=m;j++) dp[j]=j;
+        for(int i=1;i<=n;i++){
+            int prev=dp[0]; dp[0]=i;
+            for(int j=1;j<=m;j++){
+                int tmp=dp[j];
+                dp[j]=a[i-1]==b[j-1]? prev : 1+Math.Min(prev, Math.Min(dp[j], dp[j-1]));
+                prev=tmp;
+            }
+        }
+        return dp[m];
+    }
+}
