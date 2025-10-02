@@ -1,0 +1,5 @@
+using System.Collections.Concurrent;
+
+var cache = new ConcurrentDictionary<string,int>();
+int value = cache.GetOrAdd("key", _ => ExpensiveCompute());
+bool exists = cache.ContainsKey("key");
