@@ -1,0 +1,32 @@
+using System;
+
+public class CuckooHash {
+    private readonly string[] T1, T2;
+    private readonly int _cap; private readonly int _maxKicks;
+
+    public CuckooHash(int capacity=1024, int maxKicks=32){ _cap=capacity; T1=new string[_cap]; T2=new string[_cap]; _maxKicks=maxKicks; }
+
+    int H1(string s)=> Math.Abs(s.GetHashCode()) % _cap;
+    int H2(string s)=> Math.Abs(HashCode.Combine(146959810, s.GetHashCode())) % _cap;
+
+    public bool Insert(string key){
+        if (Contains(key)) return true;
+        string cur = key; int table = 1;
+        for(int k=0;k<_maxKicks;k++){
+            if (table==1){
+                int i=H1(cur);
+                if (T1[i]==null){ T1[i]=cur; return true; }
+                (cur, T1[i]) = (T1[i], cur); table=2;
+            } else {
+                int j=H2(cur);
+                if (T2[j]==null){ T2[j]=cur; return true; }
+                (cur, T2[j]) = (T2[j], cur); table=1;
+            }
+        }
+        return false; // rehash needed in real impl
+    }
+
+    public bool Contains(string key){
+        return T1[H1(key)]==key || T2[H2(key)]==key;
+    }
+}
