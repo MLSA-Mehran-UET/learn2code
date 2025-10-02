@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+
+public static class BiAStar
+{
+    public static List<int> Find(
+        Dictionary<int,List<(int to,double w)>> adj,
+        int s, int t, Func<int,double> hF, Func<int,double> hB)
+    {
+        var INF = double.PositiveInfinity;
+        var gF = new Dictionary<int,double>(); var gB = new Dictionary<int,double>();
+        var pF = new Dictionary<int,int>();   var pB = new Dictionary<int,int>();
+        foreach (var u in adj.Keys){ gF[u]=INF; gB[u]=INF; }
+        gF[s]=0; gB[t]=0;
+
+        var oF = new PriorityQueue<int,double>(); var oB = new PriorityQueue<int,double>();
+        oF.Enqueue(s, hF(s)); oB.Enqueue(t, hB(t));
+        var visF = new HashSet<int>(); var visB = new HashSet<int>();
+        double best = INF; int meet = -1;
+
+        while (oF.Count>0 && oB.Count>0)
+        {
+            Expand(adj, oF, gF, gB, pF, visF, hF, ref best, ref meet, forward:true);
+            if (meet!=-1) break;
+            Expand(adj, oB, gB, gF, pB, visB, hB, ref best, ref meet, forward:false);
+            if (meet!=-1) break;
+        }
+        if (meet==-1) return new();
+
+        // Reconstruct s -> meet -> t
+        var left = new List<int>(); for (int x=meet; x!=s; x=pF[x]) left.Add(x); left.Add(s); left.Reverse();
+        var right = new List<int>(); for (int x=meet; x!=t; x=pB[x]) right.Add(x); right.Add(t);
+        left.AddRange(right.GetRange(1, right.Count-1));
+        return left;
+    }
+
+    static void Expand(
+        Dictionary<int,List<(int to,double w)>> adj,
+        PriorityQueue<int,double> open,
+        Dictionary<int,double> g, Dictionary<int,double> gOther,
+        Dictionary<int,int> parent, HashSet<int> done, Func<int,double> h,
+        ref double best, ref int meet, bool forward)
+    {
+        if (open.Count==0) return;
+        open.TryDequeue(out int u, out _);
+        if (!done.Add(u)) return;
+
+        if (g[u] + gOther.GetValueOrDefault(u, double.PositiveInfinity) < best)
+        { best = g[u] + gOther[u]; meet = u; }
+
+        foreach (var (v,w) in adj[u])
+        {
+            double ng = g[u] + w;
+            if (ng < g[v])
+            {
+                g[v] = ng; parent[v] = u; open.Enqueue(v, ng + h(v));
+            }
+        }
+    }
+}
