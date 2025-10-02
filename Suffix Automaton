@@ -1,0 +1,40 @@
+using System.Collections.Generic;
+
+public class SuffixAutomaton
+{
+    class St { public int Len, Link; public Dictionary<char,int> Next = new(); }
+    private readonly List<St> st = new() { new St{ Len=0, Link=-1 } };
+    private int last = 0;
+
+    public void Extend(char c)
+    {
+        int cur = st.Count; st.Add(new St{ Len = st[last].Len + 1 });
+        int p = last;
+        while (p!=-1 && !st[p].Next.ContainsKey(c)) { st[p].Next[c]=cur; p = st[p].Link; }
+        if (p==-1) st[cur].Link = 0;
+        else {
+            int q = st[p].Next[c];
+            if (st[p].Len + 1 == st[q].Len) st[cur].Link = q;
+            else {
+                int clone = st.Count; st.Add(new St{
+                    Len = st[p].Len + 1, Link = st[q].Link, Next = new Dictionary<char,int>(st[q].Next)
+                });
+                while (p!=-1 && st[p].Next.GetValueOrDefault(c) == q) { st[p].Next[c]=clone; p = st[p].Link; }
+                st[q].Link = st[cur].Link = clone;
+            }
+        }
+        last = cur;
+    }
+
+    public SuffixAutomaton(string s){ foreach (var ch in s) Extend(ch); }
+
+    public bool Contains(string t)
+    {
+        int v=0;
+        foreach (var ch in t)
+        {
+            if (!st[v].Next.TryGetValue(ch, out v)) return false;
+        }
+        return true;
+    }
+}
